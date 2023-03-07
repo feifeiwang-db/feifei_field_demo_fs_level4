@@ -783,7 +783,8 @@ cleanup(query, query2)
 
 # MAGIC %md
 # MAGIC ### Stop the entire notebook
-# MAGIC <img src="https://files.training.databricks.com/images/icon_warn_24.png"/> Please also click the `Interupt` button on top to **stop the entire notebook** after running the above cleanup cell.
+# MAGIC <img src="https://files.training.databricks.com/images/icon_warn_24.png"/> Please also click the `Interupt` button on top to **stop the entire notebook** after finish running the above cleanup cell.
 
 # COMMAND ----------
+
 
