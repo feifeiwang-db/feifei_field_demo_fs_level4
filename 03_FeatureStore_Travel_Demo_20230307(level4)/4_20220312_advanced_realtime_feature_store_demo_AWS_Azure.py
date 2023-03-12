@@ -3,12 +3,12 @@
 # MAGIC You can directly run this demo notebook in `e2-field-eng-west` [AWS workspace](https://e2-demo-field-eng.cloud.databricks.com/?o=1444828305810485#ml/dashboard) or `field-eng-east` [Azure workspace](https://adb-984752964297111.11.azuredatabricks.net/?o=984752964297111#), since the secret scopes for accessing dynamoDB/cosmosDB are set up for all field eng users. 
 # MAGIC 
 # MAGIC How to run this demo if you are in `field-eng-east` [Azure workspace](https://adb-984752964297111.11.azuredatabricks.net/?o=984752964297111#): 
-# MAGIC * **important!! must read!!** If you are in the above Azure workspace with UC enabled, please use a non-UC cluster 11.3 ML or 12.1ML, and select `Shared Compute` policy, also **you must** install the additional spark connector library by input maven coordinate based on the instructions [here](https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/cosmos/azure-cosmos-spark_3-2_2-12/README.md#download) (i.e. `com.azure.cosmos.spark:azure-cosmos-spark_3-2_2-12:4.17.2`) . Currently UC clusters are not supported. Once 13.0 DBR is available, UC clusters can then be used to run this demo. 
+# MAGIC * **important!! must read!!** If you are in the above Azure workspace with UC enabled, please use a non-UC cluster 11.3+ ML, and select `Shared Compute` policy, also **you must** install the additional spark connector library by input maven coordinate based on the instructions [here](https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/cosmos/azure-cosmos-spark_3-2_2-12/README.md#download) (i.e. `com.azure.cosmos.spark:azure-cosmos-spark_3-2_2-12:4.17.2`) . Currently UC clusters are not supported. Once 13.0 DBR is available, UC clusters can then be used to run this demo. 
 # MAGIC * You can run all commands above the last "cleanup" command to check the generated feature store tables, model serving endpoint, and published tables to cosmosDB [here](https://portal.azure.com/#@DataBricksInc.onmicrosoft.com/resource/subscriptions/3f2e4d32-8e8d-46d6-82bc-5bb8d962328b/resourcegroups/field-eng-east/providers/Microsoft.DocumentDB/databaseAccounts/field-demo/collectionSetting) etc.
 # MAGIC * Then run the last cleanup command to delete all generated resources after you finish doing this demo.
 # MAGIC 
 # MAGIC How to run this demo if you are in `e2-field-eng-west` [AWS workspace](https://e2-demo-field-eng.cloud.databricks.com/?o=1444828305810485#ml/dashboard): 
-# MAGIC * Please use cluster 11.3 ML or 12.1 ML 
+# MAGIC * Please use cluster 11.3+ ML 
 # MAGIC * You can run all commands above the last "cleanup" command and check the generated feature store tables, model serving endpoint, and published tables to dynamoDB etc.
 # MAGIC * Then run the last cleanup command afterwards.
 # MAGIC 
@@ -449,7 +449,6 @@ with mlflow.start_run():
   pyfunc_model.fit(X_train, y_train)
   
   # Log custom model to MLflow
-  
   fs.log_model(
     artifact_path="model",
     model=pyfunc_model,
@@ -500,7 +499,7 @@ print("Accuracy: ", accuracy_score(pd_scoring["purchased"], pd_scoring["predicti
 # MAGIC * AWS dynamoDB: Open Okta-> Open AWS app-> Click DynamoDB-> Click Tables
 # MAGIC * Azure cosmosDB [here](https://portal.azure.com/#@DataBricksInc.onmicrosoft.com/resource/subscriptions/3f2e4d32-8e8d-46d6-82bc-5bb8d962328b/resourcegroups/field-eng-east/providers/Microsoft.DocumentDB/databaseAccounts/field-demo/collectionSetting): Under Azure Portal `field-demo` account -> settings ->field_demos database
 # MAGIC 
-# MAGIC Otherwise, follow the instructions in "Work with online feature stores" ([AWS doc](https://docs.databricks.com/machine-learning/feature-store/online-feature-stores.html) | [Azure doc](https://learn.microsoft.com/en-us/azure/databricks/machine-learning/feature-store/online-feature-stores)) to store secrets in the Databricks secret manager with the below scope. 
+# MAGIC Otherwise, follow the instructions in "Work with online feature stores" ([AWS doc](https://docs.databricks.com/machine-learning/feature-store/online-feature-stores.html) | [Azure doc](https://learn.microsoft.com/en-us/azure/databricks/machine-learning/feature-store/online-feature-stores)) to store secrets in the Databricks secret manager with the scope below. 
 # MAGIC 
 # MAGIC Important note for Azure users: If you are doing this demo in our Azure workspace, please make sure you have installed [Azure Cosmos DB Apache Spark 3 OLTP Connector for API for NoSQL](https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/sdk-java-spark-v3) (i.e. `com.azure.cosmos.spark:azure-cosmos-spark_3-2_2-12:4.17.2`) to your non-UC 11.3+ML `Shared Compute` policy  cluster before running this demo.
 
