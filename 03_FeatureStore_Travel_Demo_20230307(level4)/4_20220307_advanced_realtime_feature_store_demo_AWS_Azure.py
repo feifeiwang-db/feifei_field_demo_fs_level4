@@ -3,16 +3,16 @@
 # MAGIC You can directly run this demo notebook in `e2-field-eng-west` [AWS workspace](https://e2-demo-field-eng.cloud.databricks.com/?o=1444828305810485#ml/dashboard) or `field-eng-east` [Azure workspace](https://adb-984752964297111.11.azuredatabricks.net/?o=984752964297111#), since the secret scopes for accessing dynamoDB/cosmosDB are set up for all field eng users. 
 # MAGIC 
 # MAGIC How to run this demo if you are in `field-eng-east` [Azure workspace](https://adb-984752964297111.11.azuredatabricks.net/?o=984752964297111#): 
-# MAGIC * **important!! must read!!** If you are in the above Azure workspace with UC enabled, please use a non-UC cluster 11.3+ ML and select `Shared Compute` policy, also **you must** install the additional spark connector library by input maven coordinate based on the instructions [here](https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/cosmos/azure-cosmos-spark_3-2_2-12/README.md#download) (i.e. `com.azure.cosmos.spark:azure-cosmos-spark_3-2_2-12:4.17.2`) . Currently UC clusters are not supported. Once 13.0 DBR is available, UC clusters can then be used to run this demo. 
+# MAGIC * **important!! must read!!** If you are in the above Azure workspace with UC enabled, please use a non-UC cluster 11.3 ML or 12.1ML, and select `Shared Compute` policy, also **you must** install the additional spark connector library by input maven coordinate based on the instructions [here](https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/cosmos/azure-cosmos-spark_3-2_2-12/README.md#download) (i.e. `com.azure.cosmos.spark:azure-cosmos-spark_3-2_2-12:4.17.2`) . Currently UC clusters are not supported. Once 13.0 DBR is available, UC clusters can then be used to run this demo. 
 # MAGIC * You can run all commands above the last "cleanup" command to check the generated feature store tables, model serving endpoint, and published tables to cosmosDB [here](https://portal.azure.com/#@DataBricksInc.onmicrosoft.com/resource/subscriptions/3f2e4d32-8e8d-46d6-82bc-5bb8d962328b/resourcegroups/field-eng-east/providers/Microsoft.DocumentDB/databaseAccounts/field-demo/collectionSetting) etc.
 # MAGIC * Then run the last cleanup command to delete all generated resources after you finish doing this demo.
 # MAGIC 
 # MAGIC How to run this demo if you are in `e2-field-eng-west` [AWS workspace](https://e2-demo-field-eng.cloud.databricks.com/?o=1444828305810485#ml/dashboard): 
-# MAGIC * Please use cluster 11.3+ ML 
+# MAGIC * Please use cluster 11.3 ML or 12.1 ML 
 # MAGIC * You can run all commands above the last "cleanup" command and check the generated feature store tables, model serving endpoint, and published tables to dynamoDB etc.
 # MAGIC * Then run the last cleanup command afterwards.
 # MAGIC 
-# MAGIC For anyone who wants to set up credentials in a different AWS workspace or Azure workspace other than above, please follow instructions in [original blog post's ](https://www.databricks.com/blog/2023/02/16/best-practices-realtime-feature-computation-databricks.html) notebook examples (scroll to the end of the blog), and follow documentations here for "work with online stores" ([AWS](https://docs.databricks.com/machine-learning/feature-store/online-feature-stores.html) | [Azure](https://learn.microsoft.com/en-us/azure/databricks/machine-learning/feature-store/online-feature-stores)). If you have to obtain internal field eng credentials in order to do the demo in your own workspaces, please contact feifei.wang@databricks.com(AWS) or amine.elhelou@databricks.com (Azure).
+# MAGIC For anyone who wants to set up credentials in a different AWS workspace or Azure workspace other than above, please follow instructions in [original blog post's ](https://www.databricks.com/blog/2023/02/16/best-practices-realtime-feature-computation-databricks.html) notebook examples (scroll to the end of the blog), and follow documentations for "work with online stores" ([AWS](https://docs.databricks.com/machine-learning/feature-store/online-feature-stores.html) | [Azure](https://learn.microsoft.com/en-us/azure/databricks/machine-learning/feature-store/online-feature-stores)). If you have to obtain internal field eng credentials in order to do the demo in your own workspaces, please contact feifei.wang@databricks.com(AWS) or amine.elhelou@databricks.com (Azure).
 
 # COMMAND ----------
 
@@ -83,11 +83,10 @@ display(vacation_purchase_df)
 
 # COMMAND ----------
 
-import pyspark.sql.functions as F
-import pyspark.sql.types as T
 import pyspark.sql.window as w
+from pyspark.sql import DataFrame
 
-def user_features_fn(vacation_purchase_df):
+def user_features_fn(vacation_purchase_df: DataFrame) -> DataFrame:
     """
     Computes the user_features feature group.
     """
@@ -128,7 +127,7 @@ def user_features_fn(vacation_purchase_df):
         .select("user_id", "ts", "mean_price_7d", "last_6m_purchases", "day_of_week")
     )
 
-def destination_features_fn(vacation_purchase_df):
+def destination_features_fn(vacation_purchase_df: DataFrame) -> DataFrame:
     """
     Computes the destination_features feature group.
     """
@@ -162,7 +161,7 @@ from databricks import feature_store
 fs = feature_store.FeatureStoreClient()
 
 fs.create_table(
-    name=fs_table_user_features, ###"travel_recommendations.user_features",
+    name=fs_table_user_features, 
     primary_keys=["user_id"],
     timestamp_keys="ts",
     df=user_features_fn(vacation_purchase_df),
@@ -170,7 +169,7 @@ fs.create_table(
 )
 
 fs.create_table(
-    name=fs_table_destination_popularity_features, ###"travel_recommendations.popularity_features",
+    name=fs_table_destination_popularity_features, 
     primary_keys=["destination_id"],
     timestamp_keys="ts",
     df=destination_features_fn(vacation_purchase_df),
@@ -183,7 +182,13 @@ fs.create_table(
 
 # COMMAND ----------
 
-destination_location_df = spark.read.option("inferSchema", "true").load("/databricks-datasets/travel_recommendations_realtime/raw_travel_data/fs-demo_destination-locations/", format="csv", header="true")
+destination_location_df = (
+  spark.read
+ .option("inferSchema", "true")
+ .load("/databricks-datasets/travel_recommendations_realtime/raw_travel_data/fs-demo_destination-locations/", 
+       format="csv", 
+       header="true")
+)
 
 fs.create_table(
   name=fs_table_destination_location_features, 
@@ -215,7 +220,16 @@ destination_availability_schema = StructType([StructField("event_ts", TimestampT
                                              StructField("price", DoubleType(), True),
                                              StructField("availability", IntegerType(), True),
                                              ])
-destination_availability_log = spark.readStream.format("delta").option("maxFilesPerTrigger", 1000).option("inferSchema", "true").schema(destination_availability_schema).json("/databricks-datasets/travel_recommendations_realtime/raw_travel_data/fs-demo_destination-availability_logs/json/*")
+
+destination_availability_log = (
+  spark.readStream
+  .format("delta")
+  .option("maxFilesPerTrigger", 1000)
+  .option("inferSchema", "true")
+  .schema(destination_availability_schema)
+  .json("/databricks-datasets/travel_recommendations_realtime/raw_travel_data/fs-demo_destination-availability_logs/json/*")
+)
+
 destination_availability_df = destination_availability_log.select(
   col("event_ts"),
   col("destination_id"),
@@ -311,7 +325,7 @@ class OnDemandComputationModelWrapper(mlflow.pyfunc.PythonModel):
         raise e
       return model_input
 
-    def predict(self, context, model_input):
+    def predict(self, context, model_input: pd.DataFrame)->pd.DataFrame:
         new_model_input = self._compute_ondemand_features(model_input)
         return  self.model.predict(new_model_input)
 
@@ -352,7 +366,7 @@ from databricks.feature_store.entities.feature_lookup import FeatureLookup
 
 fs = FeatureStoreClient()
 
-feature_lookups = [
+feature_lookups = [ # Grab all useful features from different feature store tables
     FeatureLookup(
         table_name=fs_table_destination_popularity_features, 
         lookup_key="destination_id",
@@ -468,8 +482,6 @@ display(scored_df)
 # MAGIC ### Accuracy calculation
 
 # COMMAND ----------
-
-from pyspark.sql import functions as F
 
 scored_df2 = scored_df.withColumnRenamed("prediction", "original_prediction")
 scored_df2 = scored_df2.withColumn("prediction", (F.when(F.col("original_prediction") >= 0.2, True).otherwise(False))) # simply convert the original probability predictions to true or false
@@ -641,7 +653,7 @@ my_json = {
  }
 }
 
-def func_create_endpoint(model_serving_endpoint_name):
+def func_create_endpoint(model_serving_endpoint_name: str):
   #get endpoint status
   endpoint_url = f"https://{instance}/api/2.0/serving-endpoints"
   url = f"{endpoint_url}/{model_serving_endpoint_name}"
@@ -733,8 +745,6 @@ time.sleep(5)
 import requests
 
 def score_model(data_json: dict):
-    #url = f"https://{instance}/model/{model_name}/{get_latest_model_version(model_name)}/invocations"
-    #url =  f"{endpoint_url}/{model_serving_endpoint_name}/invocations"
     url =  f"https://{instance}/serving-endpoints/{model_serving_endpoint_name}/invocations"
     response = requests.request(method="POST", headers=headers, url=url, json=data_json)
     if response.status_code != 200:
@@ -770,10 +780,10 @@ print(score_model(payload_json))
 # COMMAND ----------
 
 # MAGIC %md ## Cleanup 
-# MAGIC This code
-# MAGIC 1. Stops the serving endpoint by visiting models tab or serving tab on the left.  
-# MAGIC 2. Runs cleanup functions for dropping the created demo database, the offline/online feature tables/containers, models etc. 
-# MAGIC 3. Stops the streaming writes to feature table and online store.
+# MAGIC Please run the cell below after your demo. This cleanup code
+# MAGIC 1. stops the serving endpoint by visiting models tab or serving tab on the left.  
+# MAGIC 2. runs cleanup functions for dropping the created demo database, the offline/online feature tables/containers, models etc. 
+# MAGIC 3. stops the streaming writes to feature table and online store.
 
 # COMMAND ----------
 
@@ -783,7 +793,7 @@ cleanup(query, query2)
 
 # MAGIC %md
 # MAGIC ### Stop the entire notebook
-# MAGIC <img src="https://files.training.databricks.com/images/icon_warn_24.png"/> Please also click the `Interupt` button on top to **stop the entire notebook** after finish running the above cleanup cell.
+# MAGIC <img src="https://files.training.databricks.com/images/icon_warn_24.png"/> Please also click the `Interupt` button on top right to **stop the entire notebook** after finish running the above cleanup cell.
 
 # COMMAND ----------
 
