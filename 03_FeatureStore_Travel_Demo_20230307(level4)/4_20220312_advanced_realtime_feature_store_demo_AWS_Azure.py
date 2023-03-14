@@ -634,7 +634,7 @@ instance = tags["browserHostName"]
 # MAGIC %md
 # MAGIC ### Set up configurations for Serverless model serving endpoint:
 # MAGIC * Create the serving endpooint if it does not exist yet
-# MAGIC * Or updated the conifguration of the model serving endpoint if it already exists
+# MAGIC * Or update the conifguration of the model serving endpoint if it already exists
 
 # COMMAND ----------
 
