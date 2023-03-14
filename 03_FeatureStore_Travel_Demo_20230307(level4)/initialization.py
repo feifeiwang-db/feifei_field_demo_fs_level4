@@ -131,7 +131,7 @@ def delete_Container(db, id):
           
 def delete_cosmosdb_container(container_name, account_uri_field_demo):
   URL = account_uri_field_demo
-  KEY = dbutils.secrets.get(scope="feature-store-example-write", key="field-eng-authorization-key") ###Amine El Lou is maintaining those, hard code here
+  KEY = dbutils.secrets.get(scope="feature-store-example-write", key="field-eng-authorization-key") ###Amine El Helou is maintaining those, hard code here
   DATABASE_NAME = "field_demos" ###Amine El Lou is maintaining those, hard code here
   CONTAINER_NAME = container_name
   client = cosmos_client.CosmosClient(URL, credential=KEY)
