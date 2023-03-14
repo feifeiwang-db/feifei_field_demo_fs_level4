@@ -766,7 +766,7 @@ print(score_model(payload_json))
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Once your serving endpoint is ready, you can run `score_model` code in the previous cells to check model inference result. 
+# MAGIC Once your serving endpoint is ready, your previous cell's `score_model` code should give you the model inference result. 
 # MAGIC 
 # MAGIC (**OPTIONAL**) To visualize the UI for model serving or to manually create a model serving endpoint, you could click the **"Serving"** tab on the left, 
 # MAGIC 
