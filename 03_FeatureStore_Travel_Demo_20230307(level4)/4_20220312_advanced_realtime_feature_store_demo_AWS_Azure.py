@@ -31,7 +31,7 @@
 # MAGIC    * Batch features
 # MAGIC    * Streaming features
 # MAGIC    * On-demand features
-# MAGIC 1. Publishes the features to the online store, based on the freshness requirements using streaming or batch mode (This notebook uses cosmosDB. For a list of supported online stores, see the Databricks documentation ([AWS](https://docs.databricks.com/machine-learning/feature-store/publish-features.html)|[Azure](https://learn.microsoft.com/azure/databricks/machine-learning/feature-store/publish-features))
+# MAGIC 1. Publishes the features to the online store, based on the freshness requirements using streaming or batch mode (This notebook uses dynamoDB/cosmosDB. For a list of supported online stores, see the Databricks documentation ([AWS](https://docs.databricks.com/machine-learning/feature-store/publish-features.html)|[Azure](https://learn.microsoft.com/azure/databricks/machine-learning/feature-store/publish-features))
 # MAGIC 1. Train and deploy the model
 # MAGIC 1. Serve real-time queries with automatic feature lookup
 # MAGIC 1. Clean up
