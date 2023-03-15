@@ -3,7 +3,7 @@
 # MAGIC You can directly run this demo notebook in `e2-field-eng-west` [AWS workspace](https://e2-demo-field-eng.cloud.databricks.com/?o=1444828305810485#ml/dashboard) or `field-eng-east` [Azure workspace](https://adb-984752964297111.11.azuredatabricks.net/?o=984752964297111#), since the secret scopes for accessing dynamoDB/cosmosDB are set up for all field eng users. 
 # MAGIC 
 # MAGIC How to run this demo if you are in `field-eng-east` [Azure workspace](https://adb-984752964297111.11.azuredatabricks.net/?o=984752964297111#): 
-# MAGIC * **important!! must read!!** If you are in the above Azure workspace with UC enabled, please use a non-UC cluster 11.3+ ML, and select `Shared Compute` policy, also **you must** install the additional spark connector library by input maven coordinate based on the instructions [here](https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/cosmos/azure-cosmos-spark_3-2_2-12/README.md#download) (i.e. `com.azure.cosmos.spark:azure-cosmos-spark_3-2_2-12:4.17.2`) . Currently UC clusters are not supported. Once 13.0 DBR is available, UC clusters can then be used to run this demo. 
+# MAGIC * **important!! must read!!** If you are in the above Azure workspace with UC enabled, **please use a non-UC cluster 11.3+ ML, and select `Shared Compute` policy**, also **you must** install the additional spark connector library by input maven coordinate based on the instructions [here](https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/cosmos/azure-cosmos-spark_3-2_2-12/README.md#download) (i.e. `com.azure.cosmos.spark:azure-cosmos-spark_3-2_2-12:4.17.2`) . Currently UC clusters are not supported. **Once 13.0 DBR is available, UC clusters can then be used to run this demo.** 
 # MAGIC * You can run all commands above the last "cleanup" command to check the generated feature store tables, model serving endpoint, and published tables to cosmosDB [here](https://portal.azure.com/#@DataBricksInc.onmicrosoft.com/resource/subscriptions/3f2e4d32-8e8d-46d6-82bc-5bb8d962328b/resourcegroups/field-eng-east/providers/Microsoft.DocumentDB/databaseAccounts/field-demo/collectionSetting) etc.
 # MAGIC * Then run the last cleanup command to delete all generated resources after you finish doing this demo.
 # MAGIC 
@@ -178,7 +178,7 @@ fs.create_table(
 
 # COMMAND ----------
 
-# MAGIC %md Another static dataset is destination location feature which only updates every month because it need only be refreshed when a new destination package is offered. 
+# MAGIC %md Another static dataset is destination location feature which only updates every month because it only needs to be refreshed when a new destination package is offered. 
 
 # COMMAND ----------
 
@@ -633,8 +633,9 @@ instance = tags["browserHostName"]
 
 # MAGIC %md
 # MAGIC ### Set up configurations for Serverless model serving endpoint:
-# MAGIC * Create the serving endpooint if it does not exist yet
-# MAGIC * Or update the conifguration of the model serving endpoint if it already exists
+# MAGIC * Create the serving endpoint if it does not exist yet
+# MAGIC * Or update the configuration of the model serving endpoint if it already exists
+
 
 # COMMAND ----------
 
@@ -726,7 +727,7 @@ time.sleep(5)
 # MAGIC %md 
 # MAGIC ## Send payloads via REST call
 # MAGIC 
-# MAGIC With Databricks Serverless Real-Time Inference, the endpoint takes a different score format.
+# MAGIC With Databricks's Serverless Model Serving, the endpoint takes a different score format.
 # MAGIC You can see that users in New York can see high scores for Florida, whereas usersers in California can see high scores for Hawaii.
 # MAGIC 
 # MAGIC ```
@@ -781,7 +782,7 @@ print(score_model(payload_json))
 # MAGIC %md ## Cleanup 
 # MAGIC Please run the cell below after your demo. This cleanup code
 # MAGIC 1. stops the serving endpoint by visiting models tab or serving tab on the left.  
-# MAGIC 2. runs cleanup functions for dropping the created demo database, the offline/online feature tables/containers, models etc. 
+# MAGIC 2. run the `cleanup` function for dropping the created demo database, the offline/online feature tables/containers, models etc. 
 # MAGIC 3. stops the streaming writes to feature table and online store.
 
 # COMMAND ----------
@@ -792,7 +793,7 @@ cleanup(query, query2)
 
 # MAGIC %md
 # MAGIC ### Stop the entire notebook
-# MAGIC <img src="https://files.training.databricks.com/images/icon_warn_24.png"/> Please also click the `Interupt` button on top right to **stop the entire notebook** after finish running the above cleanup cell.
+# MAGIC <img src="https://files.training.databricks.com/images/icon_warn_24.png"/> Please also click the `Interrupt` button on top right to **stop the entire notebook** after finish running the above cleanup cell.
 
 # COMMAND ----------
 
