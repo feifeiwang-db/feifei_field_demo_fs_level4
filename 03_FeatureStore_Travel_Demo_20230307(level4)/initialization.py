@@ -108,7 +108,7 @@ aws_region = "us-west-2"
 def delete_dynamodb_table(table_name):
   client = boto3.client(
     'dynamodb', 
-    aws_access_key_id=dbutils.secrets.get(scope="field-all-users-feature-store-example-write", key="dynamo-access-key-id"),
+    aws_access_key_id=dbutils.secrets.get(scope="field-all-users-feature-store-example-write", key="dynamo-access-key-id"),###Feifei Wang is maintaining those, hard code here
     aws_secret_access_key=dbutils.secrets.get(scope="field-all-users-feature-store-example-write", key="dynamo-secret-access-key"),
     region_name="us-west-2")
   client.delete_table(

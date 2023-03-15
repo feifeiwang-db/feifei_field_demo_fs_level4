@@ -636,7 +636,6 @@ instance = tags["browserHostName"]
 # MAGIC * Create the serving endpoint if it does not exist yet
 # MAGIC * Or update the configuration of the model serving endpoint if it already exists
 
-
 # COMMAND ----------
 
 import requests
