@@ -348,7 +348,7 @@ training_labels_df = (
     .where("ts < '2022-11-23'")
 )
 
-test_labels_df = (
+inference_labels_df = (
   vacation_purchase_df
     .where("ts >= '2022-11-23'")
 )
@@ -482,11 +482,11 @@ display(scored_df)
 
 # COMMAND ----------
 
-scored_df2 = scored_df.withColumnRenamed("prediction", "original_prediction")
-scored_df2 = scored_df2.withColumn("prediction", (F.when(F.col("original_prediction") >= 0.2, True).otherwise(False))) # simply convert the original probability predictions to true or false
-pd_scoring = scored_df2.select("purchased", "prediction").toPandas()
-
 from sklearn.metrics import accuracy_score
+
+scored_df2 = scored_df.withColumnRenamed("prediction", "raw_prediction")
+scored_df2 = scored_df2.withColumn("prediction", (F.when(F.col("raw_prediction") >= 0.2, True).otherwise(False))) # simply convert the original probability predictions to true or false
+pd_scoring = scored_df2.select("purchased", "prediction").toPandas()
 print("Accuracy: ", accuracy_score(pd_scoring["purchased"], pd_scoring["prediction"]))
 
 # COMMAND ----------
@@ -611,7 +611,7 @@ query2 = fs.publish_table(
 
 # COMMAND ----------
 
-# Provide both a token for the API, which can be obtained from the notebook.
+# Provide both a token for the API, which can be obtained from the notebook. Recommand to use scope to retrieve token in production environment. 
 
 token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().getOrElse(None)
 # With the token, we can create our authorization header for our subsequent REST calls
@@ -718,6 +718,7 @@ def wait_for_endpoint():
         
 api_url = mlflow.utils.databricks_utils.get_webapp_url()
 wait_for_endpoint()
+
 # Give the system just a couple extra seconds to transition
 time.sleep(5)
 
