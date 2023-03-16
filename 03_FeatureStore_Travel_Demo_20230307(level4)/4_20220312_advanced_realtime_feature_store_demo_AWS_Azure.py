@@ -729,7 +729,7 @@ time.sleep(5)
 # MAGIC ## Send payloads via REST call
 # MAGIC 
 # MAGIC With Databricks's Serverless Model Serving, the endpoint takes a different score format.
-# MAGIC You can see that users in New York can see high scores for Florida, whereas usersers in California can see high scores for Hawaii.
+# MAGIC You can see that users in New York can see high scores for Florida, whereas users in California can see high scores for Hawaii.
 # MAGIC 
 # MAGIC ```
 # MAGIC {
